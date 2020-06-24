@@ -59,6 +59,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
+import org.apache.commons.compress.archivers.ArchiveException;
 
 /** Extracts a tar file base image. */
 public class LocalBaseImageSteps {
@@ -192,14 +193,14 @@ public class LocalBaseImageSteps {
       Path tarPath,
       ProgressEventDispatcher.Factory progressEventDispatcherFactory,
       TempDirectoryProvider tempDirectoryProvider)
-      throws IOException, LayerCountMismatchException {
+      throws IOException, LayerCountMismatchException, ArchiveException {
     ExecutorService executorService = buildContext.getExecutorService();
     Path destination = tempDirectoryProvider.newDirectory();
 
     try (TimerEventDispatcher ignored =
         new TimerEventDispatcher(
             buildContext.getEventHandlers(),
-            "Extracting tar " + tarPath + " into " + destination)) {
+            "Extracting tarball " + tarPath + " into " + destination)) {
       TarExtractor.extract(tarPath, destination);
 
       InputStream manifestStream = Files.newInputStream(destination.resolve("manifest.json"));

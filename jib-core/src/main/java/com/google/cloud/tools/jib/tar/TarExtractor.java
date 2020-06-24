@@ -25,6 +25,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import org.apache.commons.compress.archivers.ArchiveException;
+import org.apache.commons.compress.archivers.ArchiveStreamFactory;
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 
@@ -37,13 +39,15 @@ public class TarExtractor {
    * @param source the tarball to extract
    * @param destination the output directory
    * @throws IOException if extraction fails
+   * @throws ArchiveException if extraction fails
    */
-  public static void extract(Path source, Path destination) throws IOException {
+  public static void extract(Path source, Path destination) throws IOException, ArchiveException {
     String canonicalDestination = destination.toFile().getCanonicalPath();
 
     try (InputStream in = new BufferedInputStream(Files.newInputStream(source));
-        TarArchiveInputStream tarArchiveInputStream = new TarArchiveInputStream(in)) {
-
+        TarArchiveInputStream tarArchiveInputStream =
+            (TarArchiveInputStream)
+                new ArchiveStreamFactory("UTF8").createArchiveInputStream("tar", in, "UTF8")) {
       for (TarArchiveEntry entry = tarArchiveInputStream.getNextTarEntry();
           entry != null;
           entry = tarArchiveInputStream.getNextTarEntry()) {

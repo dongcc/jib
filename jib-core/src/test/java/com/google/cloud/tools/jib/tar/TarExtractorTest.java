@@ -24,6 +24,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.apache.commons.compress.archivers.ArchiveException;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
@@ -35,7 +36,7 @@ public class TarExtractorTest {
   @Rule public final TemporaryFolder temporaryFolder = new TemporaryFolder();
 
   @Test
-  public void testExtract() throws URISyntaxException, IOException {
+  public void testExtract() throws URISyntaxException, IOException, ArchiveException {
     Path source = Paths.get(Resources.getResource("core/extract.tar").toURI());
     Path destination = temporaryFolder.getRoot().toPath();
     TarExtractor.extract(source, destination);
@@ -52,7 +53,8 @@ public class TarExtractorTest {
   }
 
   @Test
-  public void testExtract_missingDirectoryEntries() throws URISyntaxException, IOException {
+  public void testExtract_missingDirectoryEntries()
+      throws URISyntaxException, IOException, ArchiveException {
     Path source = Paths.get(Resources.getResource("core/extract-missing-dirs.tar").toURI());
     Path destination = temporaryFolder.getRoot().toPath();
     TarExtractor.extract(source, destination);
