@@ -72,6 +72,9 @@ class PullBaseImageStep implements Callable<ImageAndRegistryClient> {
   private final BuildContext buildContext;
   private final ProgressEventDispatcher.Factory progressEventDispatcherFactory;
 
+  private String architecture = "amd64";
+  private String os = "linux";
+
   PullBaseImageStep(
       BuildContext buildContext, ProgressEventDispatcher.Factory progressEventDispatcherFactory) {
     this.buildContext = buildContext;
@@ -89,7 +92,11 @@ class PullBaseImageStep implements Callable<ImageAndRegistryClient> {
     if (imageReference.isScratch()) {
       eventHandlers.dispatch(LogEvent.progress("Getting scratch base image..."));
       return new ImageAndRegistryClient(
-          Image.builder(buildContext.getTargetFormat()).build(), null);
+          Image.builder(buildContext.getTargetFormat())
+              .setArchitecture(this.architecture)
+              .setOs(this.os)
+              .build(),
+          null);
     }
 
     eventHandlers.dispatch(
@@ -308,5 +315,13 @@ class PullBaseImageStep implements Callable<ImageAndRegistryClient> {
     return Optional.of(
         JsonToImageTranslator.toImage(
             (BuildableManifestTemplate) manifestTemplate, configurationTemplate));
+  }
+
+  public void setArchitecture(String arch) {
+    this.architecture = arch;
+  }
+
+  public void setOs(String os) {
+    this.os = os;
   }
 }

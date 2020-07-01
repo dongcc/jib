@@ -280,8 +280,11 @@ public class StepsRunner {
     ProgressEventDispatcher.Factory childProgressDispatcherFactory =
         Verify.verifyNotNull(rootProgressDispatcher).newChildProducer();
 
-    results.baseImageAndRegistryClient =
-        executorService.submit(new PullBaseImageStep(buildContext, childProgressDispatcherFactory));
+    PullBaseImageStep pullBaseImageStep =
+        new PullBaseImageStep(buildContext, childProgressDispatcherFactory);
+    pullBaseImageStep.setArchitecture(this.scratchArchitecture);
+    pullBaseImageStep.setOs(this.scratchOs);
+    results.baseImageAndRegistryClient = executorService.submit(pullBaseImageStep);
   }
 
   private void obtainBaseImageLayers(boolean layersRequiredLocally) {
@@ -433,5 +436,16 @@ public class StepsRunner {
 
   private <E> List<Future<E>> scheduleCallables(ImmutableList<? extends Callable<E>> callables) {
     return callables.stream().map(executorService::submit).collect(Collectors.toList());
+  }
+
+  private String scratchArchitecture = "amd64";
+  private String scratchOs = "linux";
+
+  public void setScratchArch(String arch) {
+    this.scratchArchitecture = arch;
+  }
+
+  public void setScratchOs(String os) {
+    this.scratchOs = os;
   }
 }
